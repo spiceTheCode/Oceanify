@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <script src="https://aframe.io/releases/1.5.0/aframe.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.5/dist/mindar-image-aframe.prod.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/lottie-web/5.12.2/lottie.min.js"></script>
+    
+    <style>
+      body, html { margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden; }
+
+      /* Entry Splash Overlay Screen */
+      #audio-unlock-overlay {
+        position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+        background: rgba(10, 25, 47, 0.95); z-index: 2000;
+        display: flex; flex-direction: column; align-items: center; justify-content: center;
+        color: white; font-family: sans-serif; text-align: center; padding: 20px;
+      }
+      .start-btn {
+        padding: 15px 40px; background: #00b4d8; border: none; color: white;
+        font-size: 20px; font-weight: bold; border-radius: 30px; cursor: pointer;
+        margin-top: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.4);
+      }
+
+      /* The Master Lottie carriage wrapper frame (Holds ONLY the JSON canvas now) */
+      #lottie-wave-container {
+        position: fixed; left: 0; width: 100vw; height: 100vh;
+        bottom: -105vh; /* Completely hidden below the mobile screen boundary */
+        z-index: 998; pointer-events: none;
+        
+        /* SLOW SMOOTH TRANSITION: 1.5s for a heavy, majestic fluid climb */
+        transition: bottom 1.5s cubic-bezier(0.25, 1, 0.5, 1);
+      }
+
+      /* Force Lottie layer to render full width and stretch full viewport height */
+      #lottie-wave-container div {
+        width: 100% !important; height: 100% !important;
+      }
+    </style>
+  </head>
+  <body>
+
+    <div id="audio-unlock-overlay">
+      <h2>Oceanify AR Engine Ready</h2>
+      <p>Tap below to authorize mobile audio permissions and launch camera</p>
+      <button class="start-btn" id="unlock-btn">START EXPERIENCE</button>
+    </div>
+
+    <div id="lottie-wave-container">
+      <div id="lottie-player-target"></div>
+    </div>
+
+    <a-scene mindar-image="imageTargetSrc: ./targets.mind; autoStart: false;" color-space="sRGB" renderer="colorManagement: true" vr-mode-ui="enabled: false" device-orientation-permission-ui="enabled: false">
+      
+      <a-assets>
+        <audio id="sfx-wave" src="./sound files/sfx/Wave.mp3" preload="auto"></audio>
+        <audio id="sfx-post" src="./sound files/sfx/Post_Announcement.mp3" preload="auto"></audio>
+        
+        <audio id="ann-1" src="./sound files/announcements/Darsh.mp3" preload="auto"></audio>
+        <audio id="ann-2" src="./sound files/announcements/Normal_Parin.mp3" preload="auto"></audio>
+        <audio id="ann-3" src="./sound files/announcements/Normal_Teerth.mp3" preload="auto"></audio>
+        <audio id="ann-4" src="./sound files/announcements/Yoda_Parin.mp3" preload="auto"></audio>
+        <audio id="ann-5" src="./sound files/announcements/Rishika.mp3" preload="auto"></audio>
+        <audio id="ann-6" src="./sound files/announcements/Dia.mp3" preload="auto"></audio>
+        <audio id="ann-7" src="./sound files/announcements/Sharanya.mp3" preload="auto"></audio>
+        <audio id="ann-8" src="./sound files/announcements/Tanush.mp3" preload="auto"></audio>
+
+        <img id="oceanify-graphic" src="./Oceanified.png">
+      </a-assets>
+
+      <a-camera position="0 0 0" look-controls="enabled: false"></a-camera>
+
+      <a-entity id="stamp-target" mindar-image-target="targetIndex: 0">
+        <a-image id="ar-image-display" src="#oceanify-graphic" position="0 1.3 0" width="1.5" height="1.5" visible="false"></a-image>
+      </a-entity>
+    </a-scene>
+
+    <script>
+      const sceneEl = document.querySelector('a-scene');
+      const targetEl = document.querySelector('#stamp-target');
+      const unlockOverlay = document.querySelector('#audio-unlock-overlay');
+      const unlockBtn = document.querySelector('#unlock-btn');
+      const arImage = document.querySelector('#ar-image-display');
+
+      const lottieContainer = document.querySelector('#lottie-wave-container');
+      const lottiePlayerTarget = document.querySelector('#lottie-player-target');
+      
+      const sfxWave = document.querySelector('#sfx-wave');
+      const sfxPost = document.querySelector('#sfx-post');
+
+      let sequenceRunning = false;
+
+      // --- 1. Load the Core Looping Lottie Asset Engine (With Scaler Fixes) ---
+      const waveAnimation = lottie.loadAnimation({
+        container: lottiePlayerTarget,
+        renderer: 'svg',
+        loop: true, 
+        autoplay: false,
+        path: './waves_anim.json',
+        // 🚀 THE INTEGRATION FIX: Forces the vector graphic to stretch and fill the mobile screen perfectly
+        rendererSettings: {
+          preserveAspectRatio: 'none', // Overrides original composition bounds
+          hideOnTransparent: false
+        }
+      });
+
+      // --- 2. Mobile Sound-Unlock & Core Pipeline Initialization ---
+      unlockBtn.addEventListener('click', () => {
+        sfxWave.play(); sfxWave.pause();
+        sfxPost.play(); sfxPost.pause();
+        
+        const trackIdentifiers = ['Darsh', 'Normal_Parin', 'Normal_Teerth', 'Yoda_Parin', 'Rishika', 'Dia', 'Sharanya', 'Tanush'];
+        trackIdentifiers.forEach(name => {
+          let audioEl = document.querySelector(`audio[src*="${name}.mp3"]`);
+          if (audioEl) { audioEl.play(); audioEl.pause(); }
+        });
+
+        unlockOverlay.style.display = "none";
+        sceneEl.systems["mindar-image-system"].start();
+      });
+
+      // --- 3. Optimized Loop Sequence Execution ---
+      function runOceanifySequence() {
+        if (sequenceRunning) return; 
+        sequenceRunning = true;
+
+        if (navigator.vibrate) { navigator.vibrate(150); }
+
+        // Start the wave crash sound channel
+        sfxWave.currentTime = 0; 
+        sfxWave.play();
+
+        // Start cycling the vector wave frames internally
+        waveAnimation.play();
+
+        // 🌊 MAJESTIC SLIDE UP: Slides the carriage up slowly (takes 1.5s to arrive)
+        lottieContainer.style.bottom = "0vh";
+
+        // Inject the tracking image behind the wave wall once it covers the screen (at 1.5s)
+        setTimeout(() => {
+          arImage.setAttribute('visible', 'true');
+        }, 1500);
+
+        // 🔄 MAJESTIC SLIDE DOWN: Triggers at 2.5s mark. 
+        // Takes 1.5s to fully clear the screen down to the bottom, finishing exactly at the 4-second mark!
+        setTimeout(() => {
+          lottieContainer.style.bottom = "-105vh";
+          
+          // Pause internal vector frames once out of sight to save phone hardware memory
+          setTimeout(() => {
+            waveAnimation.pause();
+          }, 1500);
+        }, 2500);
+
+        // 🔊 CHRONOLOGICAL AUDIO PLAYLIST ENGINE (Triggers the moment Wave.mp3 ends at 4s)
+        sfxWave.onended = () => {
+          const announcements = [
+            document.querySelector('#ann-1'), // Darsh
+            document.querySelector('#ann-2'), // Normal_Parin
+            document.querySelector('#ann-3'), // Normal_Teerth
+            document.querySelector('#ann-4'), // Yoda_Parin
+            document.querySelector('#ann-5')  // Rishika
+            document.querySelector('#ann-6')  // Dia
+            document.querySelector('#ann-7')  // Sharanya
+            document.querySelector('#ann-8')  // Tanush
+          ];
+
+          const randomTrack = announcements[Math.floor(Math.random() * announcements.length)];
+
+          randomTrack.currentTime = 0;
+          randomTrack.play();
+
+          randomTrack.onended = () => {
+            sfxPost.currentTime = 0;
+            sfxPost.play();
+            sfxPost.onended = () => { sequenceRunning = false; };
+          };
+        };
+      }
+
+      // --- 4. Tracking Viewport State Hooks ---
+      targetEl.addEventListener("targetFound", () => {
+        runOceanifySequence();
+      });
+
+      targetEl.addEventListener("targetLost", () => {
+        arImage.setAttribute('visible', 'false');
+      });
+    </script>
+  </body>
+</html>
