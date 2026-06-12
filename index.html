@@ -2,48 +2,117 @@
 <html>
   <head>
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <link rel="icon" type="image/png" href="./icon.png">
+    
     <script src="https://aframe.io/releases/1.5.0/aframe.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.5/dist/mindar-image-aframe.prod.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/lottie-web/5.12.2/lottie.min.js"></script>
     
     <style>
-      body, html { margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden; }
+      body, html { 
+        margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden; 
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      }
 
-      /* Entry Splash Overlay Screen */
+      /* Entry Splash Overlay Screen - Deep Premium Oceanic Gradient */
       #audio-unlock-overlay {
         position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-        background: rgba(10, 25, 47, 0.95); z-index: 2000;
+        background: linear-gradient(135deg, #0a192f 0%, #0f3460 50%, #16213e 100%); z-index: 2000;
         display: flex; flex-direction: column; align-items: center; justify-content: center;
-        color: white; font-family: sans-serif; text-align: center; padding: 20px;
-      }
-      .start-btn {
-        padding: 15px 40px; background: #00b4d8; border: none; color: white;
-        font-size: 20px; font-weight: bold; border-radius: 30px; cursor: pointer;
-        margin-top: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.4);
+        color: white; text-align: center; padding: 20px; box-sizing: border-box;
+        transition: opacity 0.5s ease-out;
       }
 
-      /* The Master Lottie carriage wrapper frame (Holds ONLY the JSON canvas now) */
+      #logo {
+        width: 45%;
+        max-width: 150px;
+        filter: drop-shadow(0px 4px 12px rgba(0,0,0,0.4));
+        margin-bottom: 10px;
+      }
+
+      #audio-unlock-overlay h2 {
+        font-size: 2.2rem;
+        font-weight: 300;
+        letter-spacing: 4px;
+        text-transform: uppercase;
+        color: #e2f1ff;
+        margin: 20px 0 10px 0;
+        text-shadow: 0px 2px 8px rgba(0, 0, 0, 0.3);
+      }
+
+      #audio-unlock-overlay p {
+        font-size: 0.95rem;
+        font-weight: 300;
+        letter-spacing: 1px;
+        color: #8892b0;
+        margin-bottom: 40px;
+        max-width: 290px;
+        line-height: 1.6;
+      }
+
+      .start-btn {
+        padding: 14px 45px; 
+        background: transparent; 
+        border: 1px solid #64ffda; 
+        color: #64ffda;
+        font-size: 0.9rem;
+        font-weight: 400; 
+        letter-spacing: 2px;
+        text-transform: uppercase;
+        border-radius: 4px; 
+        cursor: pointer;
+        box-shadow: 0 4px 15px rgba(100, 255, 218, 0.1);
+        transition: all 0.3s ease;
+      }
+
+      .start-btn:hover {
+        background: rgba(100, 255, 218, 0.1);
+        box-shadow: 0px 8px 25px rgba(100, 255, 218, 0.2);
+        transform: translateY(-2px);
+      }
+
+      /* Non-AR Character Unlock Toast Notification UI */
+      .unlock-toast {
+        position: fixed; bottom: -100px; left: 50%;
+        transform: translateX(-50%); background: #0a192f;
+        border-left: 3px solid #64ffda; box-shadow: 0px 10px 30px rgba(0,0,0,0.5);
+        padding: 12px 20px; border-radius: 4px; display: flex;
+        align-items: center; gap: 15px; z-index: 9999;
+        width: 85%; max-width: 360px; pointer-events: none;
+        transition: bottom 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      }
+
+      .unlock-toast.show { bottom: 40px; }
+
+      .toast-avatar { width: 45px; height: 45px; border-radius: 4px; object-fit: cover; border: 1px solid rgba(100, 255, 218, 0.3); }
+      .toast-text h4 { margin: 0; font-size: 0.7rem; color: #64ffda; font-weight: 400; text-transform: uppercase; letter-spacing: 1.5px; }
+      .toast-text p { margin: 3px 0 0 0; font-size: 1.1rem; color: #e2f1ff; font-weight: 300; letter-spacing: 0.5px; }
+
+      /* Lottie Wave Animation Layout Frame */
       #lottie-wave-container {
         position: fixed; left: 0; width: 100vw; height: 100vh;
-        bottom: -105vh; /* Completely hidden below the mobile screen boundary */
-        z-index: 998; pointer-events: none;
-        
-        /* SLOW SMOOTH TRANSITION: 1.5s for a heavy, majestic fluid climb */
+        bottom: -105vh; z-index: 998; pointer-events: none;
         transition: bottom 1.5s cubic-bezier(0.25, 1, 0.5, 1);
       }
 
-      /* Force Lottie layer to render full width and stretch full viewport height */
-      #lottie-wave-container div {
-        width: 100% !important; height: 100% !important;
-      }
+      #lottie-wave-container div { width: 100% !important; height: 100% !important; }
     </style>
   </head>
   <body>
 
     <div id="audio-unlock-overlay">
-      <h2>Oceanify AR Engine Ready</h2>
-      <p>Tap below to authorize mobile audio permissions and launch camera</p>
-      <button class="start-btn" id="unlock-btn">START EXPERIENCE</button>
+      <img src="Logo.png" alt="Oceanify Logo" id="logo">
+      <h2>Get ready to  OCEANIFY</h2>
+      <p>Tap below and scan the stamp on the book's page</p>
+      <button class="start-btn" id="unlock-btn">LETS GO!!!</button>
+    </div>
+
+    <div id="unlock-notification" class="unlock-toast">
+      <img id="toast-img" src="./talking_heads/Aashna_silent.png" alt="Speaker" class="toast-avatar">
+      <div class="toast-text">
+        <h4>✨ Character Unlocked</h4>
+        <p id="toast-speaker-name">Name</p>
+      </div>
     </div>
 
     <div id="lottie-wave-container">
@@ -56,121 +125,185 @@
         <audio id="sfx-wave" src="./sound_files/sfx/Wave.mp3" preload="auto"></audio>
         <audio id="sfx-post" src="./sound_files/sfx/Post_Announcement.mp3" preload="auto"></audio>
         
-        <audio id="ann-1" src="./sound_files/announcements/Darsh.mp3" preload="auto"></audio>
-        <audio id="ann-2" src="./sound_files/announcements/Normal_Parin.mp3" preload="auto"></audio>
-        <audio id="ann-3" src="./sound_files/announcements/Normal_Teerth.mp3" preload="auto"></audio>
-        <audio id="ann-4" src="./sound_files/announcements/Yoda_Parin.mp3" preload="auto"></audio>
-        <audio id="ann-5" src="./sound_files/announcements/Rishika.mp3" preload="auto"></audio>
-        <audio id="ann-6" src="./sound_files/announcements/Dia.mp3" preload="auto"></audio>
-        <audio id="ann-7" src="./sound_files/announcements/Sharanya.mp3" preload="auto"></audio>
-        <audio id="ann-8" src="./sound_files/announcements/Tanush.mp3" preload="auto"></audio>
+        <audio id="ann-1" src="./sound_files/announcements/Aashna.mp3" preload="auto"></audio>
+        <audio id="ann-2" src="./sound_files/announcements/Aryaman.mp3" preload="auto"></audio>
+        <audio id="ann-3" src="./sound_files/announcements/Darsh.mp3" preload="auto"></audio>
+        <audio id="ann-4" src="./sound_files/announcements/Dia.mp3" preload="auto"></audio>
+        <audio id="ann-5" src="./sound_files/announcements/Hansika.mp3" preload="auto"></audio>
+        <audio id="ann-6" src="./sound_files/announcements/Hindi_Teerth.mp3" preload="auto"></audio>
+        <audio id="ann-7" src="./sound_files/announcements/Normal_Parin.mp3" preload="auto"></audio>
+        <audio id="ann-8" src="./sound_files/announcements/Normal_Teerth.mp3" preload="auto"></audio>
+        <audio id="ann-9" src="./sound_files/announcements/Ridhi_Di.mp3" preload="auto"></audio>
+        <audio id="ann-10" src="./sound_files/announcements/Rishika.mp3" preload="auto"></audio>
+        <audio id="ann-11" src="./sound_files/announcements/Sharanya.mp3" preload="auto"></audio>
+        <audio id="ann-12" src="./sound_files/announcements/Tanush.mp3" preload="auto"></audio>
+        <audio id="ann-13" src="./sound_files/announcements/Tiya.mp3" preload="auto"></audio>
+        <audio id="ann-14" src="./sound_files/announcements/Yoda_Parin.mp3" preload="auto"></audio>
 
+        <img id="img_Aashna_silent" src="./talking_heads/Aashna_silent.png">
+        <img id="img_Aashna_speak" src="./talking_heads/Aashna_speak.png">
+        <img id="img_Aryaman_silent" src="./talking_heads/Aryaman_silent.png">
+        <img id="img_Aryaman_speak" src="./talking_heads/Aryaman_speak.png">
+        <img id="img_Darsh_silent" src="./talking_heads/Darsh_silent.png">
+        <img id="img_Darsh_speak" src="./talking_heads/Darsh_speak.png">
+        <img id="img_Dia_silent" src="./talking_heads/Dia_silent.png">
+        <img id="img_Dia_speak" src="./talking_heads/Dia_speak.png">
+        <img id="img_Hansika_silent" src="./talking_heads/Hansika_silent.png">
+        <img id="img_Hansika_speak" src="./talking_heads/Hansika_speak.png">
+        <img id="img_RiddhiDi_silent" src="./talking_heads/RiddhiDi_silent.png">
+        <img id="img_RiddhiDi_speak" src="./talking_heads/RiddhiDi_speak.png">
+        <img id="img_Rishika_silent" src="./talking_heads/Rishika_silent.png">
+        <img id="img_Rishika_speak" src="./talking_heads/Rishika_speak.png">
+        <img id="img_Sharanya_silent" src="./talking_heads/Sharanya_silent.png">
+        <img id="img_Sharanya_speak" src="./talking_heads/Sharanya_speak.png">
+        <img id="img_Tanush_silent" src="./talking_heads/Tanush_silent.png">
+        <img id="img_Tanush_speak" src="./talking_heads/Tanush_speak.png">
+        <img id="img_Tiya_silent" src="./talking_heads/Tiya_silent.png">
+        <img id="img_Tiya_speak" src="./talking_heads/Tiya_speak.png">
+        <img id="img_Parin_silent" src="./talking_heads/Parin_silent.png">
+        <img id="img_Parin_speak" src="./talking_heads/Parin_speak.png">
+        <img id="img_Teerth_silent" src="./talking_heads/Teerth_silent.png">
+        <img id="img_Teerth_speak" src="./talking_heads/Teerth_speak.png">
+        
         <img id="oceanify-graphic" src="./Oceanified.png">
       </a-assets>
 
       <a-camera position="0 0 0" look-controls="enabled: false"></a-camera>
 
       <a-entity id="stamp-target" mindar-image-target="targetIndex: 0">
-        <a-image id="ar-image-display" src="#oceanify-graphic" position="0 1.3 0" width="1.5" height="1.5" visible="false"></a-image>
+        <a-image id="ar-speaker-display" src="#img_Aashna_silent" position="0 0.5 0" width="0.8" height="0.8" visible="false"></a-image>
+        
+        <a-image id="ar-image-display" src="#oceanify-graphic" position="0 1.2 -0.2" width="1.4" height="1.4" visible="false"></a-image>
       </a-entity>
     </a-scene>
 
     <script>
+      const speakerManifest = {
+        'ann-1':  { name: 'Aashna',      silent: '#img_Aashna_silent',   speak: '#img_Aashna_speak' },
+        'ann-2':  { name: 'Aryaman',     silent: '#img_Aryaman_silent',  speak: '#img_Aryaman_speak' },
+        'ann-3':  { name: 'Darsh',       silent: '#img_Darsh_silent',    speak: '#img_Darsh_speak' },
+        'ann-4':  { name: 'Dia',         silent: '#img_Dia_silent',      speak: '#img_Dia_speak' },
+        'ann-5':  { name: 'Hansika',     silent: '#img_Hansika_silent',  speak: '#img_Hansika_speak' },
+        'ann-6':  { name: 'Teerth',      silent: '#img_Teerth_silent',   speak: '#img_Teerth_speak' }, 
+        'ann-7':  { name: 'Parin',       silent: '#img_Parin_silent',    speak: '#img_Parin_speak' },  
+        'ann-8':  { name: 'Teerth',      silent: '#img_Teerth_silent',   speak: '#img_Teerth_speak' }, 
+        'ann-9':  { name: 'Ridhi Di',    silent: '#img_RiddhiDi_silent', speak: '#img_RiddhiDi_speak' },
+        'ann-10': { name: 'Rishika',     silent: '#img_Rishika_silent',  speak: '#img_Rishika_speak' },
+        'ann-11': { name: 'Sharanya',    silent: '#img_Sharanya_silent', speak: '#img_Sharanya_speak' },
+        'ann-12': { name: 'Tanush',      silent: '#img_Tanush_silent',   speak: '#img_Tanush_speak' },
+        'ann-13': { name: 'Tiya',        silent: '#img_Tiya_silent',     speak: '#img_Tiya_speak' },
+        'ann-14': { name: 'Parin',       silent: '#img_Parin_silent',    speak: '#img_Parin_speak' }   
+      };
+
       const sceneEl = document.querySelector('a-scene');
       const targetEl = document.querySelector('#stamp-target');
       const unlockOverlay = document.querySelector('#audio-unlock-overlay');
       const unlockBtn = document.querySelector('#unlock-btn');
       const arImage = document.querySelector('#ar-image-display');
+      const arSpeakerDisplay = document.querySelector('#ar-speaker-display');
 
       const lottieContainer = document.querySelector('#lottie-wave-container');
       const lottiePlayerTarget = document.querySelector('#lottie-player-target');
+      const toastNotification = document.getElementById('unlock-notification');
+      const toastImg = document.getElementById('toast-img');
+      const toastNameText = document.getElementById('toast-speaker-name');
       
       const sfxWave = document.querySelector('#sfx-wave');
       const sfxPost = document.querySelector('#sfx-post');
 
       let sequenceRunning = false;
+      let activeVoiceTrack = null;
+      let selectedRandomID = null;
 
-      // --- 1. Load the Core Looping Lottie Asset Engine (With Scaler Fixes) ---
       const waveAnimation = lottie.loadAnimation({
         container: lottiePlayerTarget,
         renderer: 'svg',
         loop: true, 
         autoplay: false,
         path: './waves_anim.json',
-        // 🚀 THE INTEGRATION FIX: Forces the vector graphic to stretch and fill the mobile screen perfectly
         rendererSettings: {
-          preserveAspectRatio: 'none', // Overrides original composition bounds
+          preserveAspectRatio: 'none',
           hideOnTransparent: false
         }
       });
 
-      // --- 2. Mobile Sound-Unlock & Core Pipeline Initialization ---
       unlockBtn.addEventListener('click', () => {
         sfxWave.play(); sfxWave.pause();
         sfxPost.play(); sfxPost.pause();
         
-        const trackIdentifiers = ['Darsh', 'Normal_Parin', 'Normal_Teerth', 'Yoda_Parin', 'Rishika', 'Dia', 'Sharanya', 'Tanush'];
-        trackIdentifiers.forEach(name => {
-          let audioEl = document.querySelector(`audio[src*="${name}.mp3"]`);
+        Object.keys(speakerManifest).forEach(id => {
+          let audioEl = document.getElementById(id);
           if (audioEl) { audioEl.play(); audioEl.pause(); }
         });
 
-        unlockOverlay.style.display = "none";
+        unlockOverlay.style.opacity = "0";
+        setTimeout(() => { unlockOverlay.style.display = "none"; }, 500);
         sceneEl.systems["mindar-image-system"].start();
       });
 
-      // --- 3. Optimized Loop Sequence Execution ---
+      function handleCharacterUnlock(speaker) {
+        let savedData = localStorage.getItem('oceanify_collected_characters');
+        let collectionList = savedData ? JSON.parse(savedData) : [];
+
+        if (!collectionList.includes(speaker.name)) {
+          collectionList.push(speaker.name);
+          localStorage.setItem('oceanify_collected_characters', JSON.stringify(collectionList));
+          
+          const backupImgElement = document.querySelector(speaker.silent);
+          toastImg.src = backupImgElement ? backupImgElement.src : './icon.png';
+          toastNameText.textContent = speaker.name;
+
+          toastNotification.classList.add('show');
+          setTimeout(() => { toastNotification.classList.remove('show'); }, 3500);
+        }
+      }
+
       function runOceanifySequence() {
         if (sequenceRunning) return; 
         sequenceRunning = true;
 
         if (navigator.vibrate) { navigator.vibrate(150); }
 
-        // Start the wave crash sound channel
         sfxWave.currentTime = 0; 
         sfxWave.play();
-
-        // Start cycling the vector wave frames internally
         waveAnimation.play();
 
-        // 🌊 MAJESTIC SLIDE UP: Slides the carriage up slowly (takes 1.5s to arrive)
         lottieContainer.style.bottom = "0vh";
 
-        // Inject the tracking image behind the wave wall once it covers the screen (at 1.5s)
+        // 🚀 TIMING STEP 1: Pick the random track immediately ahead of time so we know who to render
+        const trackIDs = Object.keys(speakerManifest);
+        selectedRandomID = trackIDs[Math.floor(Math.random() * trackIDs.length)];
+        const currentSpeaker = speakerManifest[selectedRandomID];
+
+        // 🚀 TIMING STEP 2: The moment the wave recedes down (1.5s mark), spawn BOTH images instantly in silent state
         setTimeout(() => {
+          arSpeakerDisplay.setAttribute('src', currentSpeaker.silent);
+          arSpeakerDisplay.setAttribute('visible', 'true');
           arImage.setAttribute('visible', 'true');
         }, 1500);
 
-        // 🔄 MAJESTIC SLIDE DOWN: Triggers at 2.5s mark. 
-        // Takes 1.5s to fully clear the screen down to the bottom, finishing exactly at the 4-second mark!
+        // Wave Slides Down Frame Cleanup
         setTimeout(() => {
           lottieContainer.style.bottom = "-105vh";
-          
-          // Pause internal vector frames once out of sight to save phone hardware memory
-          setTimeout(() => {
-            waveAnimation.pause();
-          }, 1500);
+          setTimeout(() => { waveAnimation.pause(); }, 1500);
         }, 2500);
 
-        // 🔊 CHRONOLOGICAL AUDIO PLAYLIST ENGINE (Triggers the moment Wave.mp3 ends at 4s)
+        // 🚀 TIMING STEP 3: Wave sound finishes (4.0s mark). Trigger the audio play and swap the mouth to yelling phase
         sfxWave.onended = () => {
-          const announcements = [
-            document.querySelector('#ann-1'), // Darsh
-            document.querySelector('#ann-2'), // Normal_Parin
-            document.querySelector('#ann-3'), // Normal_Teerth
-            document.querySelector('#ann-4'), // Yoda_Parin
-            document.querySelector('#ann-5'),  // Rishika
-            document.querySelector('#ann-6'), // Dia
-            document.querySelector('#ann-7'),  // Sharanya
-            document.querySelector('#ann-8')  // Tanush
-          ];
+          const liveSpeaker = speakerManifest[selectedRandomID];
+          activeVoiceTrack = document.getElementById(selectedRandomID);
 
-          const randomTrack = announcements[Math.floor(Math.random() * announcements.length)];
+          activeVoiceTrack.currentTime = 0;
+          activeVoiceTrack.play();
 
-          randomTrack.currentTime = 0;
-          randomTrack.play();
+          activeVoiceTrack.onplay = () => {
+            arSpeakerDisplay.setAttribute('src', liveSpeaker.speak);
+            handleCharacterUnlock(liveSpeaker);
+          };
 
-          randomTrack.onended = () => {
+          activeVoiceTrack.onended = () => {
+            arSpeakerDisplay.setAttribute('src', liveSpeaker.silent);
+            
             sfxPost.currentTime = 0;
             sfxPost.play();
             sfxPost.onended = () => { sequenceRunning = false; };
@@ -178,13 +311,19 @@
         };
       }
 
-      // --- 4. Tracking Viewport State Hooks ---
       targetEl.addEventListener("targetFound", () => {
         runOceanifySequence();
       });
 
       targetEl.addEventListener("targetLost", () => {
         arImage.setAttribute('visible', 'false');
+        arSpeakerDisplay.setAttribute('visible', 'false');
+        if (activeVoiceTrack) {
+          activeVoiceTrack.pause();
+          activeVoiceTrack.currentTime = 0;
+        }
+        sfxPost.pause();
+        sequenceRunning = false;
       });
     </script>
   </body>
